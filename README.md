@@ -43,6 +43,8 @@ Released:                 c | 2025-03-16 12:55:31.942816
 Released:            ctrl_l | 2025-03-16 12:55:32.027804
 ...
 ```
+It also logs the clipboard to a file. Everytime a key is pressed, it checks to see if the clipboard is different from the last time it checked. If it is, it logs it.
+
 ## Discord Notifying  
 Through the use of a discord webhook, the program will notify you when it is online on a client.  
 <img src="img/Webhookoutput1.png" alt="Webhook1">  
@@ -77,7 +79,7 @@ The names for like everything don't correlate to their purposes, I just named th
 **1c.** Closes the powershell window.  
 
 **2.** Runs command prompt as an administrator.  
-**2a.** The first command it runs here is one to create an extensionless file named `src` in a folder named `Source` which is located in the local user directory. The first line of this file is your discord webhook url and the second line is your line number thing.  
+**2a.** The first command it runs here is one to create a file named `main.dependencies` in a folder named `Source` which is located in the local user directory. The first line of this file is your discord webhook url and the second line is your line number thing.  
 **2b.** Creates and sets the contents of a file named `dl.ps1` in the same `Source` directory mentioned above. I'll address the contents of this file in a second.  
 **2c.** Executes a command to run the `dl.ps1` file in a hidden window that way no one sees it.  
 **2d.** Closes the command prompt window. After the window closes, you can unplug the USB Rubber Ducky.  
@@ -94,6 +96,6 @@ The names for like everything don't correlate to their purposes, I just named th
 **4.** Starts running `main.exe` as mentioned in 3d.  
 **4a.** Checks to see if an extensionless file named `kill` exists in the `Source` directory. If it does, the program stops, if it doesn't then the next step happens.  
 **4b.** Attempts to send a message via the webhook notifying that the program is online. If this fails (likely due to webhook url not being valid) then the program will stop. If it succeeds the next step will happen.  
-**4c.** Begins monitoring key presses, saving them to an extensionless file named `main` in the `Source` directory.  
-**4d.** Once `main` has as many or more lines then the number defined in `src` then the program will send `main` through the webhook.  
-**4e.** After sending `main` it will then empty `main` on the client's end.
+**4c.** Begins monitoring key presses and mouse clicks, saving them to a file named `main.x` in the `Source` directory. Also begins monitoring the clipboard, saving it to a file named `main.extensions`.  
+**4d.** Once `main.x` has as many or more lines then the number defined in `main.dependencies` then the program will send `main.x` and `main.extensions` through the webhook. It will also send a version of `main.x` that is just key presses.  
+**4e.** After sending, it will then empty `main.x` and `main.extensions` on the client's end.

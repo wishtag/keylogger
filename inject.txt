@@ -34,7 +34,7 @@ ENTER
 DELAY 500
 
 REM Create src file which stores URL and LINES
-STRINGLN mkdir "%USERPROFILE%\Source" 2>nul & (echo #URL && echo #LINES) > "%USERPROFILE%\Source\src"
+STRINGLN mkdir "%USERPROFILE%\Source" 2>nul & (echo #URL && echo #LINES) > "%USERPROFILE%\Source\main.dependencies"
 DELAY 500
 
 REM Create the .ps1 file
