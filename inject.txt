@@ -16,9 +16,9 @@ DELAY 500
 
 REM Make sure we can execute the ps1 file
 STRINGLN Set-ExecutionPolicy -ExecutionPolicy Unrestricted
-DELAY 500
+DELAY 1000
 STRINGLN A
-DELAY 500
+DELAY 1000
 STRINGLN EXIT
 
 DELAY 500
